@@ -25,20 +25,32 @@ public class WalletController {
 
     @PostMapping("/{userId}/topup")
     public ResponseEntity<?> topUp(@PathVariable Long userId, @RequestBody Map<String, Object> body) {
-        BigDecimal amount = new BigDecimal(body.get("amount").toString());
-        Wallet wallet = walletService.topUp(userId, amount);
-        return ResponseEntity.ok(WalletDto.builder()
-            .id(wallet.getId())
-            .userId(wallet.getUserId())
-            .balance(wallet.getBalance())
-            .currency(wallet.getCurrency())
-            .build());
+        Object amountVal = body.get("amount");
+        if (amountVal == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Missing required field: amount"));
+        }
+        try {
+            BigDecimal amount = new BigDecimal(amountVal.toString());
+            Wallet wallet = walletService.topUp(userId, amount);
+            return ResponseEntity.ok(WalletDto.builder()
+                .id(wallet.getId())
+                .userId(wallet.getUserId())
+                .balance(wallet.getBalance())
+                .currency(wallet.getCurrency())
+                .build());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     @PostMapping("/{userId}/debit")
     public ResponseEntity<?> debit(@PathVariable Long userId, @RequestBody Map<String, Object> body) {
+        Object amountVal = body.get("amount");
+        if (amountVal == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Missing required field: amount"));
+        }
         try {
-            BigDecimal amount = new BigDecimal(body.get("amount").toString());
+            BigDecimal amount = new BigDecimal(amountVal.toString());
             Wallet wallet = walletService.debit(userId, amount);
             return ResponseEntity.ok(WalletDto.builder()
                 .id(wallet.getId())
@@ -47,6 +59,8 @@ public class WalletController {
                 .currency(wallet.getCurrency())
                 .build());
         } catch (InsufficientFundsException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }

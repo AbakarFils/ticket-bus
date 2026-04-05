@@ -32,6 +32,9 @@ public class WalletService {
 
     @Transactional
     public Wallet topUp(Long userId, BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Top-up amount must be positive");
+        }
         Wallet wallet = getOrCreateWallet(userId);
         wallet.setBalance(wallet.getBalance().add(amount));
         log.info("Topped up wallet for user {} by {}", userId, amount);
@@ -40,8 +43,12 @@ public class WalletService {
 
     @Transactional
     public Wallet debit(Long userId, BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Debit amount must be positive");
+        }
         Wallet wallet = walletRepository.findByUserIdWithLock(userId)
-            .orElseGet(() -> getOrCreateWallet(userId));
+            .orElseGet(() -> walletRepository.save(Wallet.builder()
+                .userId(userId).balance(BigDecimal.ZERO).currency("XAF").build()));
         if (wallet.getBalance().compareTo(amount) < 0) {
             throw new InsufficientFundsException(
                 "Insufficient funds. Balance: " + wallet.getBalance() + ", Required: " + amount);
@@ -51,7 +58,7 @@ public class WalletService {
         return walletRepository.save(wallet);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public WalletDto getBalance(Long userId) {
         Wallet wallet = getOrCreateWallet(userId);
         return WalletDto.builder()

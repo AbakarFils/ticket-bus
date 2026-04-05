@@ -30,6 +30,9 @@ public class TicketController {
         try {
             Long userId = body.get("userId");
             Long productId = body.get("productId");
+            if (userId == null || productId == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "userId and productId are required"));
+            }
             Ticket ticket = ticketingService.purchaseTicket(userId, productId);
             String productName = productRepository.findById(productId)
                 .map(Product::getName).orElse("Unknown");

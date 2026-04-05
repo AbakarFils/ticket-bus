@@ -93,9 +93,9 @@ public class ValidationService {
                     .build();
                 validationEventRepository.save(event);
 
-                antiReplayService.releaseValidationLock(ticketId);
-
                 checkTemporalCollision(ticketId, req.getLocation());
+
+                antiReplayService.releaseValidationLock(ticketId);
 
                 return ValidationResponse.builder()
                     .result(ValidationResult.OK)

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/pricing")
@@ -32,9 +33,12 @@ public class PricingController {
     }
 
     @GetMapping("/recommend")
-    public ResponseEntity<BestFareRecommendation> recommend(
+    public ResponseEntity<?> recommend(
             @RequestParam Long userId,
             @RequestParam int tripsPerMonth) {
+        if (tripsPerMonth <= 0) {
+            return ResponseEntity.badRequest().body(Map.of("error", "tripsPerMonth must be positive"));
+        }
         return ResponseEntity.ok(pricingService.recommend(userId, tripsPerMonth));
     }
 }

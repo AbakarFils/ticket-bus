@@ -35,7 +35,18 @@ public class WalletClient {
 
     public void debit(Long userId, BigDecimal amount) {
         Map<String, Object> body = Map.of("amount", amount);
-        restTemplate.postForObject(
-            walletUrl + "/api/wallets/" + userId + "/debit", body, Map.class);
+        try {
+            org.springframework.http.ResponseEntity<Map> response = restTemplate.postForEntity(
+                walletUrl + "/api/wallets/" + userId + "/debit", body, Map.class);
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> errorBody = (Map<String, Object>) response.getBody();
+                String msg = errorBody != null ? String.valueOf(errorBody.getOrDefault("error", "Debit failed")) : "Debit failed";
+                throw new IllegalStateException(msg);
+            }
+        } catch (org.springframework.web.client.HttpClientErrorException e) {
+            String responseBody = e.getResponseBodyAsString();
+            throw new IllegalStateException("Wallet debit failed: " + responseBody);
+        }
     }
 }
