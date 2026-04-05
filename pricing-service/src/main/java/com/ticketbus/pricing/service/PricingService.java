@@ -66,6 +66,7 @@ public class PricingService {
         if (product.getType() == ProductType.UNIT) {
             return product.getPrice().multiply(BigDecimal.valueOf(trips));
         } else if (product.getType() == ProductType.PACK) {
+            if (product.getMaxUsage() <= 0) return null;
             int packsNeeded = (int) Math.ceil((double) trips / product.getMaxUsage());
             return product.getPrice().multiply(BigDecimal.valueOf(packsNeeded));
         } else if (product.getType() == ProductType.PASS) {

@@ -51,6 +51,7 @@ public class WalletService {
         return walletRepository.save(wallet);
     }
 
+    @Transactional(readOnly = true)
     public WalletDto getBalance(Long userId) {
         Wallet wallet = getOrCreateWallet(userId);
         return WalletDto.builder()

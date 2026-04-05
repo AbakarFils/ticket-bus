@@ -104,7 +104,9 @@ public class ValidationService {
                     .build();
 
             } catch (Exception e) {
-                antiReplayService.releaseValidationLock(ticketId);
+                if (ticketId != null) {
+                    antiReplayService.releaseValidationLock(ticketId);
+                }
                 throw e;
             }
 
