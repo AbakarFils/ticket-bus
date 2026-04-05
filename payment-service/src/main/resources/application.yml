@@ -1,0 +1,8 @@
+server:
+  port: 8085
+spring:
+  application:
+    name: payment-service
+payment:
+  gateway-url: ${PAYMENT_GATEWAY_URL:https://api.example-payment.com}
+  api-key: ${PAYMENT_API_KEY:dev-key}
