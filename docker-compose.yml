@@ -1,0 +1,152 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ticketbus-postgres
+    environment:
+      POSTGRES_DB: ticketbus
+      POSTGRES_USER: ticketbus
+      POSTGRES_PASSWORD: ticketbus
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ticketbus"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: ticketbus-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    container_name: ticketbus-keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/ticketbus
+      KC_DB_USERNAME: ticketbus
+      KC_DB_PASSWORD: ticketbus
+      KC_HOSTNAME: localhost
+    command: start-dev
+    ports:
+      - "8180:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: ticketbus-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      TICKETING_URL: http://ticketing-service:8081
+      VALIDATION_URL: http://validation-service:8083
+      WALLET_URL: http://wallet-service:8082
+      PRICING_URL: http://pricing-service:8084
+      PAYMENT_URL: http://payment-service:8085
+    depends_on:
+      - ticketing-service
+      - validation-service
+      - wallet-service
+      - pricing-service
+      - payment-service
+
+  ticketing-service:
+    build:
+      context: ./ticketing-service
+      dockerfile: Dockerfile
+    container_name: ticketbus-ticketing
+    ports:
+      - "8081:8081"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/ticketbus
+      DB_USER: ticketbus
+      DB_PASS: ticketbus
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      WALLET_URL: http://wallet-service:8082
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  validation-service:
+    build:
+      context: ./validation-service
+      dockerfile: Dockerfile
+    container_name: ticketbus-validation
+    ports:
+      - "8083:8083"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/ticketbus
+      DB_USER: ticketbus
+      DB_PASS: ticketbus
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  wallet-service:
+    build:
+      context: ./wallet-service
+      dockerfile: Dockerfile
+    container_name: ticketbus-wallet
+    ports:
+      - "8082:8082"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/ticketbus
+      DB_USER: ticketbus
+      DB_PASS: ticketbus
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  pricing-service:
+    build:
+      context: ./pricing-service
+      dockerfile: Dockerfile
+    container_name: ticketbus-pricing
+    ports:
+      - "8084:8084"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/ticketbus
+      DB_USER: ticketbus
+      DB_PASS: ticketbus
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  payment-service:
+    build:
+      context: ./payment-service
+      dockerfile: Dockerfile
+    container_name: ticketbus-payment
+    ports:
+      - "8085:8085"
+
+volumes:
+  postgres_data:
+  redis_data:
