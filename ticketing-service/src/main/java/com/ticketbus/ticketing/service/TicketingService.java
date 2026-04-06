@@ -56,9 +56,12 @@ public class TicketingService {
             .userId(userId)
             .productId(productId)
             .nonce(UUID.randomUUID().toString())
+            .secret(UUID.randomUUID().toString()) // Secret for dynamic QR rotation
             .validFrom(now)
             .validUntil(validUntil)
             .maxUsage(product.getMaxUsage())
+            .operatorId(product.getOperatorId())
+            .zone(product.getZoneCode())
             .status(TicketStatus.ACTIVE)
             .build();
 
@@ -85,7 +88,7 @@ public class TicketingService {
     }
 
     public TicketDto toDto(Ticket ticket, String productName) {
-        String payload = qrSigningService.buildPayload(ticket);
+        String qrJson = qrSigningService.buildQrJson(ticket, ticket.getSignature());
         return TicketDto.builder()
             .id(ticket.getId())
             .userId(ticket.getUserId())
@@ -99,7 +102,7 @@ public class TicketingService {
             .maxUsage(ticket.getMaxUsage())
             .status(ticket.getStatus())
             .createdAt(ticket.getCreatedAt())
-            .qrPayload(payload)
+            .qrPayload(qrJson)
             .build();
     }
 }

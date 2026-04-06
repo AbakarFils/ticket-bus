@@ -1,5 +1,7 @@
 package com.ticketbus.ticketing.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.ticketbus.common.domain.Ticket;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +51,7 @@ public class QrSigningService {
         return Base64.getEncoder().encodeToString(publicKey.getEncoded());
     }
 
+    /** Pipe-delimited payload used for RSA signature */
     public String buildPayload(Ticket ticket) {
         return ticket.getId() + "|" +
                ticket.getUserId() + "|" +
@@ -56,6 +59,26 @@ public class QrSigningService {
                ticket.getValidFrom() + "|" +
                ticket.getValidUntil() + "|" +
                ticket.getMaxUsage();
+    }
+
+    /** JSON payload for the QR code (readable by validation-service) */
+    public String buildQrJson(Ticket ticket, String signature) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode node = mapper.createObjectNode();
+            node.put("ticketId", ticket.getId());
+            node.put("userId", String.valueOf(ticket.getUserId()));
+            node.put("nonce", ticket.getNonce());
+            node.put("validFrom", ticket.getValidFrom().toString());
+            node.put("validUntil", ticket.getValidUntil().toString());
+            node.put("maxUsage", ticket.getMaxUsage());
+            node.put("zone", ticket.getZone() != null ? ticket.getZone() : "");
+            node.put("productType", "");
+            node.put("signature", signature);
+            return mapper.writeValueAsString(node);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to build QR JSON", e);
+        }
     }
 
     public String sign(String payload) throws Exception {

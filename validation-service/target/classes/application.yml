@@ -18,3 +18,10 @@ validation:
   collision-window-minutes: 5
   rsa:
     public-key: ${RSA_PUBLIC_KEY:}
+services:
+  audit-url: ${AUDIT_URL:http://localhost:8087}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics

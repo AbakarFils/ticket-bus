@@ -10,3 +10,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+services:
+  audit-url: ${AUDIT_URL:http://localhost:8087}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics

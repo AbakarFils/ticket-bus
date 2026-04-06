@@ -26,6 +26,14 @@ spring:
           uri: ${PAYMENT_URL:http://localhost:8085}
           predicates:
             - Path=/api/payments/**
+        - id: customer-service
+          uri: ${CUSTOMER_URL:http://localhost:8086}
+          predicates:
+            - Path=/api/customers/**
+        - id: audit-service
+          uri: ${AUDIT_URL:http://localhost:8087}
+          predicates:
+            - Path=/api/audit/**
       globalcors:
         corsConfigurations:
           '[/**]':
@@ -36,4 +44,4 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,gateway
+        include: health,info,gateway,prometheus

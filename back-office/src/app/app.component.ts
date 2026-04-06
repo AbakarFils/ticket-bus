@@ -24,6 +24,10 @@ import { MatIconModule } from '@angular/material/icon';
             <mat-icon matListItemIcon>local_offer</mat-icon>
             <span matListItemTitle>Produits</span>
           </a>
+          <a mat-list-item routerLink="/tickets" routerLinkActive="active-link">
+            <mat-icon matListItemIcon>confirmation_number</mat-icon>
+            <span matListItemTitle>Tickets</span>
+          </a>
           <a mat-list-item routerLink="/events" routerLinkActive="active-link">
             <mat-icon matListItemIcon>qr_code_scanner</mat-icon>
             <span matListItemTitle>Validations</span>
@@ -31,6 +35,22 @@ import { MatIconModule } from '@angular/material/icon';
           <a mat-list-item routerLink="/wallets" routerLinkActive="active-link">
             <mat-icon matListItemIcon>account_balance_wallet</mat-icon>
             <span matListItemTitle>Wallets</span>
+          </a>
+          <a mat-list-item routerLink="/payments" routerLinkActive="active-link">
+            <mat-icon matListItemIcon>payment</mat-icon>
+            <span matListItemTitle>Paiements</span>
+          </a>
+          <a mat-list-item routerLink="/fraud-alerts" routerLinkActive="active-link">
+            <mat-icon matListItemIcon>warning</mat-icon>
+            <span matListItemTitle>Alertes Fraude</span>
+          </a>
+          <a mat-list-item routerLink="/customers" routerLinkActive="active-link">
+            <mat-icon matListItemIcon>people</mat-icon>
+            <span matListItemTitle>Clients</span>
+          </a>
+          <a mat-list-item routerLink="/operators" routerLinkActive="active-link">
+            <mat-icon matListItemIcon>business</mat-icon>
+            <span matListItemTitle>Opérateurs</span>
           </a>
         </mat-nav-list>
       </mat-sidenav>
