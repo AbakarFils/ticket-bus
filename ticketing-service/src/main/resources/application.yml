@@ -21,5 +21,13 @@ ticketing:
     public-key: ${RSA_PUBLIC_KEY:}
   ticket:
     validity-minutes: 60
+  qr:
+    rotation-seconds: 30
 services:
   wallet-url: ${WALLET_URL:http://localhost:8082}
+  audit-url: ${AUDIT_URL:http://localhost:8087}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics

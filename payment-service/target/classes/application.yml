@@ -10,6 +10,18 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+<<<<<<< HEAD
+=======
+    show-sql: false
+>>>>>>> 6a79295c (phase 3)
 payment:
   gateway-url: ${PAYMENT_GATEWAY_URL:https://api.example-payment.com}
   api-key: ${PAYMENT_API_KEY:dev-key}
+services:
+  wallet-url: ${WALLET_URL:http://localhost:8082}
+  audit-url: ${AUDIT_URL:http://localhost:8087}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics

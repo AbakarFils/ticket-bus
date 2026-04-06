@@ -19,6 +19,7 @@ public class TicketDto {
     private String signature;
     private int usageCount;
     private int maxUsage;
+    private String zone;
     private TicketStatus status;
     private LocalDateTime createdAt;
     private String qrPayload;

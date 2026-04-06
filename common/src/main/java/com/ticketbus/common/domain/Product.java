@@ -29,6 +29,10 @@ public class Product {
 
     private Integer durationDays;
 
+    private Long operatorId;
+
+    private String zoneCode;
+
     @Builder.Default
     private boolean active = true;
 }

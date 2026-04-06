@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Maven build output
 target/
 *.class
@@ -32,3 +33,7 @@ Thumbs.db
 # Logs
 *.log
 logs/
+=======
+/back-office/node_modules/
+/.idea/
+>>>>>>> 6a79295c (phase 3)

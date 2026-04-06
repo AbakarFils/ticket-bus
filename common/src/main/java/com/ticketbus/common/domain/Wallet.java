@@ -27,6 +27,21 @@ public class Wallet {
     @Builder.Default
     private String currency = "XAF";
 
+    /** Monthly budget limit (null = no limit) */
+    @Column(precision = 19, scale = 2)
+    private BigDecimal monthlyBudget;
+
+    /** Amount spent in current month */
+    @Column(precision = 19, scale = 2)
+    @Builder.Default
+    private BigDecimal monthlySpent = BigDecimal.ZERO;
+
+    /** Month tracker (resets spending) */
+    private Integer currentMonth;
+
+    /** Budget alert threshold percentage (e.g., 80 = alert at 80%) */
+    private Integer alertThresholdPercent;
+
     private LocalDateTime updatedAt;
 
     @PrePersist

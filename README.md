@@ -153,10 +153,13 @@ En dev, une paire de clés est générée automatiquement et la clé publique es
 
 | Entité | Champs principaux |
 |--------|-------------------|
-| `Ticket` | id, userId, productId, nonce, validFrom, validUntil, signature, usageCount, maxUsage, status |
+| `Ticket` | id, userId, productId, nonce, validFrom, validUntil, signature, usageCount, maxUsage, zone, status |
 | `ValidationEvent` | id, ticketId, terminalId, location, timestamp, offline, result |
-| `Wallet` | id, userId, balance, currency |
+| `FraudAlert` | id, ticketId, alertType, description, terminalId, location, resolved |
+| `Wallet` | id, userId, balance, currency, monthlyBudget, monthlySpent, alertThresholdPercent |
+| `PaymentTransaction` | id, userId, amount, currency, type, status, transactionRef, paymentMethod |
 | `Product` | id, name, type, price, maxUsage, durationDays |
+| `FareRule` | id, name, productId, zone, timeSlot, passengerCategory, dailyCap, weeklyCap, monthlyCap |
 | `User` | id, email, passwordHash, role |
 
 ## Roadmap
@@ -183,10 +186,10 @@ En dev, une paire de clés est générée automatiquement et la clé publique es
 
 ## Stack technique
 
-- **Backend** : Java 21, Spring Boot 3.2, Spring Security, Spring Cloud Gateway
+- **Backend** : Java 17, Spring Boot 3.2, Spring Security, Spring Cloud Gateway
 - **Base de données** : PostgreSQL 16
 - **Cache / Anti-rejeu** : Redis 7
-- **Identité** : Keycloak 23
-- **Crypto** : RSA-2048 / SHA256withRSA (JJWT)
-- **Front-office** : Angular 17 + Angular Material
+- **Identité** : Keycloak 23 (prêt, intégration Phase 3)
+- **Crypto** : RSA-2048 / SHA256withRSA
+- **Front-office** : Angular 19 + Angular Material
 - **Infra** : Docker Compose, prêt Kubernetes
