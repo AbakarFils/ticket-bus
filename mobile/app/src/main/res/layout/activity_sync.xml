@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="16dp"
+    android:background="@color/background">
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="Synchronisation" android:textSize="22sp" android:textStyle="bold"
+        android:textColor="@color/primary" android:layout_marginBottom="24dp" />
+    <TextView android:id="@+id/tvNetworkStatus" android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="●" android:textSize="16sp" android:layout_marginBottom="12dp" />
+    <TextView android:id="@+id/tvPendingCount" android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="Validations en attente: ..." android:textSize="16sp" android:layout_marginBottom="8dp" />
+    <TextView android:id="@+id/tvLastSync" android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="Dernière sync: ..." android:textSize="14sp" android:textColor="#666"
+        android:layout_marginBottom="8dp" />
+    <TextView android:id="@+id/tvBlacklistCount" android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="Blacklist en cache: ..." android:textSize="14sp" android:textColor="#666"
+        android:layout_marginBottom="24dp" />
+    <Button android:id="@+id/btnSyncNow" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="↻ Synchroniser maintenant" android:backgroundTint="@color/secondary"
+        android:textColor="@color/white" />
+</LinearLayout>

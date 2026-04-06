@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TicketBus</string>
+    <string name="login">Se connecter</string>
+    <string name="username">Nom d\'utilisateur</string>
+    <string name="password">Mot de passe</string>
+    <string name="scan_qr">Scanner QR</string>
+    <string name="sync_now">Synchroniser</string>
+    <string name="sync_status">État de sync</string>
+</resources>
