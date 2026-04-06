@@ -1,0 +1,24 @@
+# Backend
+backend/target/
+backend/.mvn/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+
+# Mobile
+mobile/.gradle/
+mobile/app/build/
+mobile/build/
+mobile/local.properties
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
