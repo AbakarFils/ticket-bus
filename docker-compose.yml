@@ -63,12 +63,16 @@ services:
       WALLET_URL: http://wallet-service:8082
       PRICING_URL: http://pricing-service:8084
       PAYMENT_URL: http://payment-service:8085
+      CUSTOMER_URL: http://customer-service:8086
+      AUDIT_URL: http://audit-fraud-service:8087
     depends_on:
       - ticketing-service
       - validation-service
       - wallet-service
       - pricing-service
       - payment-service
+      - customer-service
+      - audit-fraud-service
 
   ticketing-service:
     build:
@@ -103,6 +107,7 @@ services:
       DB_PASS: ticketbus
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      AUDIT_URL: http://audit-fraud-service:8087
     depends_on:
       postgres:
         condition: service_healthy
@@ -146,6 +151,44 @@ services:
     container_name: ticketbus-payment
     ports:
       - "8085:8085"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/ticketbus
+      DB_USER: ticketbus
+      DB_PASS: ticketbus
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  customer-service:
+    build:
+      context: ./customer-service
+      dockerfile: Dockerfile
+    container_name: ticketbus-customer
+    ports:
+      - "8086:8086"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/ticketbus
+      DB_USER: ticketbus
+      DB_PASS: ticketbus
+      TICKETING_URL: http://ticketing-service:8081
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  audit-fraud-service:
+    build:
+      context: ./audit-fraud-service
+      dockerfile: Dockerfile
+    container_name: ticketbus-audit-fraud
+    ports:
+      - "8087:8087"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/ticketbus
+      DB_USER: ticketbus
+      DB_PASS: ticketbus
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 volumes:
   postgres_data:

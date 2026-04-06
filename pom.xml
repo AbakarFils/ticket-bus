@@ -18,6 +18,8 @@
         <module>pricing-service</module>
         <module>payment-service</module>
         <module>api-gateway</module>
+        <module>customer-service</module>
+        <module>audit-fraud-service</module>
     </modules>
 
     <properties>

@@ -1,4 +1,5 @@
 com/ticketbus/validation/dto/TicketScanRequest.class
+com/ticketbus/validation/config/AppConfig.class
 com/ticketbus/validation/repository/TicketRepository.class
 com/ticketbus/validation/config/SecurityConfig.class
 com/ticketbus/validation/repository/ValidationEventRepository.class
@@ -6,6 +7,7 @@ com/ticketbus/validation/service/ValidationService.class
 com/ticketbus/validation/dto/ValidationResponse$ValidationResponseBuilder.class
 com/ticketbus/validation/ValidationServiceApplication.class
 com/ticketbus/validation/service/QrVerificationService.class
+com/ticketbus/validation/client/AuditFraudClient.class
 com/ticketbus/validation/dto/ValidationResponse.class
 com/ticketbus/validation/service/AntiReplayService.class
 com/ticketbus/validation/dto/TicketScanRequest$TicketScanRequestBuilder.class

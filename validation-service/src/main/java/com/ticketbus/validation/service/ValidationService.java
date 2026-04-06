@@ -1,5 +1,6 @@
 package com.ticketbus.validation.service;
 
+import com.ticketbus.validation.client.AuditFraudClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ticketbus.common.domain.*;
@@ -26,6 +27,7 @@ public class ValidationService {
     private final AntiReplayService antiReplayService;
     private final TicketRepository ticketRepository;
     private final ValidationEventRepository validationEventRepository;
+    private final AuditFraudClient auditFraudClient;
     private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
     @Value("${validation.collision-window-minutes:5}")
@@ -47,6 +49,10 @@ public class ValidationService {
 
             if (!qrVerificationService.verifySignature(sigPayload, req.getSignature())) {
                 return saveEventAndReturn(ticketId, req, ValidationResult.INVALID_SIGNATURE, "Invalid signature");
+            }
+
+            if (auditFraudClient.isTicketBlacklisted(ticketId)) {
+                return saveEventAndReturn(ticketId, req, ValidationResult.BLACKLISTED, "Ticket is blacklisted");
             }
 
             LocalDateTime validUntil = LocalDateTime.parse(validUntilStr);
@@ -151,6 +157,8 @@ public class ValidationService {
         if (collision) {
             log.warn("TEMPORAL COLLISION DETECTED for ticket {}: validated at different locations within {} minutes",
                 ticketId, collisionWindowMinutes);
+            auditFraudClient.reportFraudAlert(ticketId, null, null, "DOUBLE_SCAN",
+                "Ticket validated at different locations within " + collisionWindowMinutes + " minutes");
         }
     }
 }

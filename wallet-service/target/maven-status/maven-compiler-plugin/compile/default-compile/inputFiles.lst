@@ -1,6 +1,12 @@
 /home/runner/work/ticket-bus/ticket-bus/wallet-service/src/main/java/com/ticketbus/wallet/WalletServiceApplication.java
 /home/runner/work/ticket-bus/ticket-bus/wallet-service/src/main/java/com/ticketbus/wallet/config/SecurityConfig.java
 /home/runner/work/ticket-bus/ticket-bus/wallet-service/src/main/java/com/ticketbus/wallet/controller/WalletController.java
+/home/runner/work/ticket-bus/ticket-bus/wallet-service/src/main/java/com/ticketbus/wallet/domain/TransactionType.java
+/home/runner/work/ticket-bus/ticket-bus/wallet-service/src/main/java/com/ticketbus/wallet/domain/WalletBudget.java
+/home/runner/work/ticket-bus/ticket-bus/wallet-service/src/main/java/com/ticketbus/wallet/domain/WalletTransaction.java
+/home/runner/work/ticket-bus/ticket-bus/wallet-service/src/main/java/com/ticketbus/wallet/dto/SetBudgetRequest.java
 /home/runner/work/ticket-bus/ticket-bus/wallet-service/src/main/java/com/ticketbus/wallet/exception/InsufficientFundsException.java
+/home/runner/work/ticket-bus/ticket-bus/wallet-service/src/main/java/com/ticketbus/wallet/repository/WalletBudgetRepository.java
 /home/runner/work/ticket-bus/ticket-bus/wallet-service/src/main/java/com/ticketbus/wallet/repository/WalletRepository.java
+/home/runner/work/ticket-bus/ticket-bus/wallet-service/src/main/java/com/ticketbus/wallet/repository/WalletTransactionRepository.java
 /home/runner/work/ticket-bus/ticket-bus/wallet-service/src/main/java/com/ticketbus/wallet/service/WalletService.java
