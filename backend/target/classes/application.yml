@@ -1,0 +1,28 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: ticket-bus-backend
+  datasource:
+    url: jdbc:h2:mem:ticketbus
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  h2:
+    console:
+      enabled: true
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+app:
+  jwt:
+    secret: "ticketBusSecretKey2024ForJwtTokenGenerationPurposesOnlyAtLeast256Bits!!"
+    expiration: 86400000
+logging:
+  level:
+    com.ticketbus: INFO
