@@ -1,34 +1,11 @@
-# Maven build output
-target/
-*.class
-
-# IDE files
-.idea/
-*.iml
-*.ipr
-*.iws
-.eclipse/
-.settings/
-.classpath
-.project
-
-# Node.js / Angular
-node_modules/
-dist/
-.angular/
-.cache/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Environment files
-.env
-.env.local
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-logs/
+/back-office/node_modules/
+/.idea/
+/api-gateway/target/
+/audit-service/target/
+/common/target/
+/customer-service/target/
+/payment-service/target/
+/pricing-service/target/
+/ticketing-service/target/
+/validation-service/target/
+/wallet-service/target/

@@ -12,4 +12,8 @@ public class WalletDto {
     private Long userId;
     private BigDecimal balance;
     private String currency;
+    private BigDecimal monthlyBudget;
+    private BigDecimal monthlySpent;
+    private Integer alertThresholdPercent;
+    private boolean budgetAlertTriggered;
 }

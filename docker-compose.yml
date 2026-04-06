@@ -1,4 +1,3 @@
-version: '3.9'
 
 services:
   postgres:
@@ -9,7 +8,7 @@ services:
       POSTGRES_USER: ticketbus
       POSTGRES_PASSWORD: ticketbus
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -64,7 +63,11 @@ services:
       PRICING_URL: http://pricing-service:8084
       PAYMENT_URL: http://payment-service:8085
       CUSTOMER_URL: http://customer-service:8086
+<<<<<<< HEAD
       AUDIT_URL: http://audit-fraud-service:8087
+=======
+      AUDIT_URL: http://audit-service:8087
+>>>>>>> 6a79295c (phase 3)
     depends_on:
       - ticketing-service
       - validation-service
@@ -72,7 +75,11 @@ services:
       - pricing-service
       - payment-service
       - customer-service
+<<<<<<< HEAD
       - audit-fraud-service
+=======
+      - audit-service
+>>>>>>> 6a79295c (phase 3)
 
   ticketing-service:
     build:
@@ -88,6 +95,9 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       WALLET_URL: http://wallet-service:8082
+      RSA_PRIVATE_KEY: ${RSA_PRIVATE_KEY:-}
+      RSA_PUBLIC_KEY: ${RSA_PUBLIC_KEY:-}
+      AUDIT_URL: http://audit-service:8087
     depends_on:
       postgres:
         condition: service_healthy
@@ -107,7 +117,12 @@ services:
       DB_PASS: ticketbus
       REDIS_HOST: redis
       REDIS_PORT: 6379
+<<<<<<< HEAD
       AUDIT_URL: http://audit-fraud-service:8087
+=======
+      RSA_PUBLIC_KEY: ${RSA_PUBLIC_KEY:-}
+      AUDIT_URL: http://audit-service:8087
+>>>>>>> 6a79295c (phase 3)
     depends_on:
       postgres:
         condition: service_healthy
@@ -155,6 +170,10 @@ services:
       DB_URL: jdbc:postgresql://postgres:5432/ticketbus
       DB_USER: ticketbus
       DB_PASS: ticketbus
+<<<<<<< HEAD
+=======
+      WALLET_URL: http://wallet-service:8082
+>>>>>>> 6a79295c (phase 3)
     depends_on:
       postgres:
         condition: service_healthy
@@ -170,16 +189,28 @@ services:
       DB_URL: jdbc:postgresql://postgres:5432/ticketbus
       DB_USER: ticketbus
       DB_PASS: ticketbus
+<<<<<<< HEAD
       TICKETING_URL: http://ticketing-service:8081
+=======
+      KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/ticketbus
+>>>>>>> 6a79295c (phase 3)
     depends_on:
       postgres:
         condition: service_healthy
 
+<<<<<<< HEAD
   audit-fraud-service:
     build:
       context: ./audit-fraud-service
       dockerfile: Dockerfile
     container_name: ticketbus-audit-fraud
+=======
+  audit-service:
+    build:
+      context: ./audit-service
+      dockerfile: Dockerfile
+    container_name: ticketbus-audit
+>>>>>>> 6a79295c (phase 3)
     ports:
       - "8087:8087"
     environment:
@@ -189,7 +220,38 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+<<<<<<< HEAD
+=======
+
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: ticketbus-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=30d'
+
+  grafana:
+    image: grafana/grafana:10.4.0
+    container_name: ticketbus-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+>>>>>>> 6a79295c (phase 3)
 
 volumes:
   postgres_data:
   redis_data:
+  prometheus_data:
+  grafana_data:
