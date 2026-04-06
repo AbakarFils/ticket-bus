@@ -84,6 +84,30 @@ public class TicketingService {
         return ticketRepository.findByUserId(userId);
     }
 
+    @Transactional
+    public Ticket revokeTicket(Long id) {
+        Ticket ticket = ticketRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Ticket not found: " + id));
+        if (ticket.getStatus() == TicketStatus.REVOKED) {
+            throw new IllegalStateException("Ticket is already revoked");
+        }
+        ticket.setStatus(TicketStatus.REVOKED);
+        log.info("Ticket {} revoked", id);
+        return ticketRepository.save(ticket);
+    }
+
+    @Transactional
+    public Ticket cancelTicket(Long id) {
+        Ticket ticket = ticketRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Ticket not found: " + id));
+        if (ticket.getStatus() != TicketStatus.ACTIVE) {
+            throw new IllegalStateException("Only ACTIVE tickets can be cancelled. Status: " + ticket.getStatus());
+        }
+        ticket.setStatus(TicketStatus.REVOKED);
+        log.info("Ticket {} cancelled", id);
+        return ticketRepository.save(ticket);
+    }
+
     public TicketDto toDto(Ticket ticket, String productName) {
         String payload = qrSigningService.buildPayload(ticket);
         return TicketDto.builder()

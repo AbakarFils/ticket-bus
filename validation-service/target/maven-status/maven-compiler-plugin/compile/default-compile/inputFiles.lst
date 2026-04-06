@@ -1,4 +1,6 @@
 /home/runner/work/ticket-bus/ticket-bus/validation-service/src/main/java/com/ticketbus/validation/ValidationServiceApplication.java
+/home/runner/work/ticket-bus/ticket-bus/validation-service/src/main/java/com/ticketbus/validation/client/AuditFraudClient.java
+/home/runner/work/ticket-bus/ticket-bus/validation-service/src/main/java/com/ticketbus/validation/config/AppConfig.java
 /home/runner/work/ticket-bus/ticket-bus/validation-service/src/main/java/com/ticketbus/validation/config/SecurityConfig.java
 /home/runner/work/ticket-bus/ticket-bus/validation-service/src/main/java/com/ticketbus/validation/controller/ValidationController.java
 /home/runner/work/ticket-bus/ticket-bus/validation-service/src/main/java/com/ticketbus/validation/dto/TicketScanRequest.java

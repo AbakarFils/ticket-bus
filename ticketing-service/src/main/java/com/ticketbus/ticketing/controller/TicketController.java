@@ -70,4 +70,28 @@ public class TicketController {
     public ResponseEntity<Map<String, String>> getPublicKey() {
         return ResponseEntity.ok(Map.of("publicKey", qrSigningService.getPublicKeyBase64()));
     }
+
+    @PostMapping("/{id}/revoke")
+    public ResponseEntity<?> revokeTicket(@PathVariable Long id) {
+        try {
+            Ticket ticket = ticketingService.revokeTicket(id);
+            String productName = productRepository.findById(ticket.getProductId())
+                .map(Product::getName).orElse("Unknown");
+            return ResponseEntity.ok(ticketingService.toDto(ticket, productName));
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<?> cancelTicket(@PathVariable Long id) {
+        try {
+            Ticket ticket = ticketingService.cancelTicket(id);
+            String productName = productRepository.findById(ticket.getProductId())
+                .map(Product::getName).orElse("Unknown");
+            return ResponseEntity.ok(ticketingService.toDto(ticket, productName));
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 }
