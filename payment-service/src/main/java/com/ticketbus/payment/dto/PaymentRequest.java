@@ -1,5 +1,6 @@
 package com.ticketbus.payment.dto;
 
+import com.ticketbus.payment.domain.PaymentMethod;
 import lombok.*;
 import java.math.BigDecimal;
 
@@ -12,4 +13,6 @@ public class PaymentRequest {
     private BigDecimal amount;
     private String currency;
     private String reference;
+    private String description;
+    private PaymentMethod method;
 }
