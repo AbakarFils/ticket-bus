@@ -1,0 +1,18 @@
+server:
+  port: 8086
+spring:
+  application:
+    name: customer-service
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/ticketbus}
+    username: ${DB_USER:ticketbus}
+    password: ${DB_PASS:ticketbus}
+  jpa:
+    hibernate:
+      ddl-auto: update
+customer:
+  jwt:
+    secret: ${JWT_SECRET:ticket-bus-secret-key-must-be-at-least-32-chars-long}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+ticketing:
+  url: ${TICKETING_URL:http://localhost:8081}
