@@ -39,13 +39,6 @@ public class Wallet {
     /** Month tracker (resets spending) */
     private Integer currentMonth;
 
-    /** Year tracker (resets spending on year change) */
-    private Integer currentYear;
-
-    /** Whether budget alert has been triggered this month */
-    @Builder.Default
-    private boolean budgetAlertTriggered = false;
-
     /** Budget alert threshold percentage (e.g., 80 = alert at 80%) */
     private Integer alertThresholdPercent;
 

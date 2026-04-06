@@ -69,10 +69,6 @@ public class PricingService {
             if (product.getMaxUsage() <= 0) return null;
             int packsNeeded = (int) Math.ceil((double) trips / product.getMaxUsage());
             return product.getPrice().multiply(BigDecimal.valueOf(packsNeeded));
-        } else if (product.getType() == ProductType.CARNET) {
-            if (product.getMaxUsage() <= 0) return null;
-            int carnetsNeeded = (int) Math.ceil((double) trips / product.getMaxUsage());
-            return product.getPrice().multiply(BigDecimal.valueOf(carnetsNeeded));
         } else if (product.getType() == ProductType.PASS) {
             if (product.getDurationDays() != null && product.getDurationDays() >= 30) {
                 return product.getPrice();
@@ -97,7 +93,6 @@ public class PricingService {
             .price(product.getPrice())
             .maxUsage(product.getMaxUsage())
             .durationDays(product.getDurationDays())
-            .description(product.getDescription())
             .build();
     }
 }

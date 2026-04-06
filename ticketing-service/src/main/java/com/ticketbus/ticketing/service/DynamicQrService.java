@@ -95,56 +95,5 @@ public class DynamicQrService {
     public int getRotationSeconds() {
         return rotationSeconds;
     }
-
-    /**
-     * Valide un QR code dynamique en vérifiant la fenêtre temporelle et la signature
-     */
-    public boolean validateDynamicQr(java.util.Map<String, Object> qrData, Ticket ticket) {
-        try {
-            if (ticket.getSecret() == null || ticket.getSecret().isEmpty()) {
-                return false; // Pas de secret pour QR dynamique
-            }
-
-            String receivedNonce = (String) qrData.get("rotatingNonce");
-            Long windowIndex = Long.valueOf(qrData.get("windowIndex").toString());
-            String signature = (String) qrData.get("signature");
-
-            if (receivedNonce == null || windowIndex == null || signature == null) {
-                return false;
-            }
-
-            // Vérifier que la fenêtre temporelle est récente (accepter fenêtre actuelle et précédente)
-            long currentWindow = getCurrentWindowIndex();
-            if (windowIndex < currentWindow - 1 || windowIndex > currentWindow) {
-                log.warn("Dynamic QR window index {} invalid, current: {}", windowIndex, currentWindow);
-                return false;
-            }
-
-            // Recalculer le nonce rotatif attendu
-            String expectedNonce = computeRotatingNonce(ticket.getSecret(), windowIndex);
-            if (!expectedNonce.equals(receivedNonce)) {
-                log.warn("Dynamic QR rotating nonce mismatch");
-                return false;
-            }
-
-            // Reconstruire le payload et vérifier la signature
-            String expectedPayload = ticket.getId() + "|" +
-                ticket.getUserId() + "|" +
-                ticket.getNonce() + "|" +
-                ticket.getValidFrom() + "|" +
-                ticket.getValidUntil() + "|" +
-                ticket.getMaxUsage() + "|" +
-                receivedNonce;
-
-            boolean isValid = qrSigningService.verify(expectedPayload, signature);
-            log.info("Dynamic QR validation for ticket {} - window: {}, valid: {}",
-                ticket.getId(), windowIndex, isValid);
-            return isValid;
-
-        } catch (Exception e) {
-            log.error("Error validating dynamic QR", e);
-            return false;
-        }
-    }
 }
 

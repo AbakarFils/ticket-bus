@@ -7,8 +7,5 @@
 /Users/mahamatabakar/Documents/workspaces/yams/ticketBus/ticket-bus/ticketing-service/src/main/java/com/ticketbus/ticketing/repository/ProductRepository.java
 /Users/mahamatabakar/Documents/workspaces/yams/ticketBus/ticket-bus/ticketing-service/src/main/java/com/ticketbus/ticketing/repository/TicketRepository.java
 /Users/mahamatabakar/Documents/workspaces/yams/ticketBus/ticket-bus/ticketing-service/src/main/java/com/ticketbus/ticketing/service/DynamicQrService.java
-/Users/mahamatabakar/Documents/workspaces/yams/ticketBus/ticket-bus/ticketing-service/src/main/java/com/ticketbus/ticketing/service/MetricsService.java
 /Users/mahamatabakar/Documents/workspaces/yams/ticketBus/ticket-bus/ticketing-service/src/main/java/com/ticketbus/ticketing/service/QrSigningService.java
-/Users/mahamatabakar/Documents/workspaces/yams/ticketBus/ticket-bus/ticketing-service/src/main/java/com/ticketbus/ticketing/service/QrValidationService.java
-/Users/mahamatabakar/Documents/workspaces/yams/ticketBus/ticket-bus/ticketing-service/src/main/java/com/ticketbus/ticketing/service/TicketPrintService.java
 /Users/mahamatabakar/Documents/workspaces/yams/ticketBus/ticket-bus/ticketing-service/src/main/java/com/ticketbus/ticketing/service/TicketingService.java

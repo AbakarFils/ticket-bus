@@ -29,7 +29,6 @@ public class Ticket {
 
     private LocalDateTime validUntil;
 
-    @Column(length = 500)
     private String signature;
 
     @Builder.Default

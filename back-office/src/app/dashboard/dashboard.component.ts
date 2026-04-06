@@ -2,14 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterLink } from '@angular/router';
-import { ApiService, ValidationEvent, TicketStats, Wallet } from '../core/api.service';
+import { ApiService, ValidationEvent } from '../core/api.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatIconModule, MatProgressBarModule, RouterLink],
+  imports: [CommonModule, MatCardModule, MatIconModule, RouterLink],
   template: `
     <h2>Dashboard</h2>
     <div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:24px">
@@ -44,46 +43,9 @@ import { ApiService, ValidationEvent, TicketStats, Wallet } from '../core/api.se
       <mat-card style="min-width:200px; cursor:pointer" routerLink="/tickets">
         <mat-card-header>
           <mat-icon matCardAvatar style="font-size:32px;width:40px;height:40px;color:#6a1b9a">confirmation_number</mat-icon>
-          <mat-card-title>Tickets actifs</mat-card-title>
+          <mat-card-title>Tickets récents</mat-card-title>
         </mat-card-header>
-        <mat-card-content><h1>{{ ticketStats.totalActive }}</h1></mat-card-content>
-      </mat-card>
-    </div>
-
-    <!-- Pass / Carnet / Budget KPIs -->
-    <div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:24px">
-      <mat-card style="min-width:180px;border-left:4px solid #2e7d32">
-        <mat-card-header>
-          <mat-icon matCardAvatar style="font-size:28px;width:36px;height:36px;color:#2e7d32">card_membership</mat-icon>
-          <mat-card-title>Pass actifs</mat-card-title>
-        </mat-card-header>
-        <mat-card-content><h1 style="color:#2e7d32">{{ ticketStats.passActive }}</h1></mat-card-content>
-      </mat-card>
-      <mat-card style="min-width:180px;border-left:4px solid #f57c00">
-        <mat-card-header>
-          <mat-icon matCardAvatar style="font-size:28px;width:36px;height:36px;color:#f57c00">style</mat-icon>
-          <mat-card-title>Carnets actifs</mat-card-title>
-        </mat-card-header>
-        <mat-card-content><h1 style="color:#f57c00">{{ ticketStats.carnetActive }}</h1></mat-card-content>
-      </mat-card>
-      <mat-card style="min-width:220px;border-left:4px solid #f57c00">
-        <mat-card-header>
-          <mat-card-title>Taux utilisation carnets</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <h1>{{ ticketStats.carnetUsageRatePercent }}%</h1>
-          <mat-progress-bar mode="determinate" [value]="ticketStats.carnetUsageRatePercent" color="warn"></mat-progress-bar>
-        </mat-card-content>
-      </mat-card>
-      <mat-card style="min-width:200px;border-left:4px solid #c62828" *ngIf="budgetAlerts.length > 0">
-        <mat-card-header>
-          <mat-icon matCardAvatar style="font-size:28px;width:36px;height:36px;color:#c62828">account_balance_wallet</mat-icon>
-          <mat-card-title>Alertes budget</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <h1 style="color:#c62828">{{ budgetAlerts.length }}</h1>
-          <p style="font-size:0.85em;color:#666">wallets en dépassement</p>
-        </mat-card-content>
+        <mat-card-content><h1>{{ ticketCount }}</h1></mat-card-content>
       </mat-card>
     </div>
 
@@ -123,8 +85,7 @@ export class DashboardComponent implements OnInit {
   successValidations = 0;
   fraudAlerts = 0;
   offlineEvents = 0;
-  ticketStats: TicketStats = { totalActive: 0, passActive: 0, carnetActive: 0, carnetUsageRatePercent: 0 };
-  budgetAlerts: Wallet[] = [];
+  ticketCount = 0;
 
   constructor(private api: ApiService) {}
 
@@ -140,13 +101,8 @@ export class DashboardComponent implements OnInit {
       error: () => {}
     });
 
-    this.api.getTicketStats().subscribe({
-      next: (s) => this.ticketStats = s,
-      error: () => {}
-    });
-
-    this.api.getWalletAlerts().subscribe({
-      next: (w) => this.budgetAlerts = w,
+    this.api.getRecentTickets().subscribe({
+      next: (t) => this.ticketCount = t.length,
       error: () => {}
     });
   }

@@ -12,6 +12,4 @@ public class TicketScanRequest {
     private String terminalId;
     private String location;
     private boolean offline;
-    /** ISO-8601 timestamp from agent device when validated offline */
-    private String offlineTimestamp;
 }

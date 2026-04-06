@@ -43,7 +43,6 @@ public class ValidationService {
             String nonce = json.get("nonce").asText();
             String validUntilStr = json.get("validUntil").asText();
             int maxUsage = json.get("maxUsage").asInt();
-            String productType = json.has("productType") ? json.get("productType").asText() : "";
 
             String userId = json.get("userId").asText();
             String validFrom = json.get("validFrom").asText();
@@ -56,101 +55,52 @@ public class ValidationService {
             }
 
             if (signature == null || signature.isBlank()) {
-                return saveEventAndReturn(ticketId, req, ValidationResult.INVALID_SIGNATURE, "Missing signature", productType);
+                return saveEventAndReturn(ticketId, req, ValidationResult.INVALID_SIGNATURE, "Missing signature");
             }
 
             if (!qrVerificationService.verifySignature(sigPayload, signature)) {
-                return saveEventAndReturn(ticketId, req, ValidationResult.INVALID_SIGNATURE, "Invalid signature", productType);
+                return saveEventAndReturn(ticketId, req, ValidationResult.INVALID_SIGNATURE, "Invalid signature");
             }
 
             LocalDateTime validUntil = LocalDateTime.parse(validUntilStr);
-            // Use offline timestamp for comparison if provided
-            LocalDateTime now = LocalDateTime.now();
-            if (req.isOffline() && req.getOfflineTimestamp() != null && !req.getOfflineTimestamp().isBlank()) {
-                try {
-                    now = LocalDateTime.parse(req.getOfflineTimestamp());
-                } catch (Exception ignored) {
-                    // fallback to server time
-                    now = LocalDateTime.now();
-                }
-            }
-
-            if (now.isAfter(validUntil)) {
-                return saveEventAndReturn(ticketId, req, ValidationResult.EXPIRED, "Ticket expired", productType);
+            if (LocalDateTime.now().isAfter(validUntil)) {
+                return saveEventAndReturn(ticketId, req, ValidationResult.EXPIRED, "Ticket expired");
             }
 
             if (!antiReplayService.acquireValidationLock(ticketId)) {
-                return saveEventAndReturn(ticketId, req, ValidationResult.ALREADY_USED, "Concurrent validation in progress", productType);
+                return saveEventAndReturn(ticketId, req, ValidationResult.ALREADY_USED, "Concurrent validation in progress");
             }
 
             try {
                 if (antiReplayService.isNonceUsed(nonce)) {
-                    return saveEventAndReturn(ticketId, req, ValidationResult.ALREADY_USED, "Nonce already used", productType);
+                    return saveEventAndReturn(ticketId, req, ValidationResult.ALREADY_USED, "Nonce already used");
                 }
 
                 Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
 
                 if (ticket == null || ticket.getStatus() != TicketStatus.ACTIVE) {
-                    // Offline conflict: ticket was already used/revoked while agent was offline
-                    if (req.isOffline() && ticket != null && ticket.getStatus() == TicketStatus.USED) {
-                        FraudAlert alert = FraudAlert.builder()
-                            .ticketId(ticketId)
-                            .alertType(FraudAlertType.OFFLINE_CONFLICT)
-                            .description("Offline validation received but ticket already USED. Terminal: " + req.getTerminalId())
-                            .terminalId(req.getTerminalId())
-                            .location(req.getLocation())
-                            .build();
-                        alert = fraudAlertRepository.save(alert);
-                        fraudAlertSseService.publish(alert);
-                        return saveEventAndReturn(ticketId, req, ValidationResult.OFFLINE_CONFLICT,
-                            "Offline conflict: ticket already used", productType);
-                    }
                     return saveEventAndReturn(ticketId, req, ValidationResult.ALREADY_USED,
-                        ticket == null ? "Ticket not found" : "Ticket status: " + ticket.getStatus(), productType);
+                        ticket == null ? "Ticket not found" : "Ticket status: " + ticket.getStatus());
                 }
 
-                boolean isPass = "PASS".equals(productType) || ticket.getMaxUsage() >= 999;
-
-                // For PASS: don't check/increment usage count (unlimited rides)
-                if (!isPass) {
-                    if (ticket.getUsageCount() >= ticket.getMaxUsage()) {
-                        // Offline conflict for CARNET: usage exceeded via offline sync
-                        if (req.isOffline()) {
-                            FraudAlert alert = FraudAlert.builder()
-                                .ticketId(ticketId)
-                                .alertType(FraudAlertType.OFFLINE_CONFLICT)
-                                .description("Offline validation: CARNET usage exceeded. Count: " + ticket.getUsageCount() + "/" + ticket.getMaxUsage())
-                                .terminalId(req.getTerminalId())
-                                .location(req.getLocation())
-                                .build();
-                            alert = fraudAlertRepository.save(alert);
-                            fraudAlertSseService.publish(alert);
-                            return saveEventAndReturn(ticketId, req, ValidationResult.OFFLINE_CONFLICT,
-                                "Offline conflict: max usage exceeded", productType);
-                        }
-                        return saveEventAndReturn(ticketId, req, ValidationResult.ALREADY_USED, "Max usage reached", productType);
-                    }
-
-                    ticket.setUsageCount(ticket.getUsageCount() + 1);
-                    if (ticket.getUsageCount() >= ticket.getMaxUsage()) {
-                        ticket.setStatus(TicketStatus.USED);
-                    }
+                if (ticket.getUsageCount() >= ticket.getMaxUsage()) {
+                    return saveEventAndReturn(ticketId, req, ValidationResult.ALREADY_USED, "Max usage reached");
                 }
 
                 antiReplayService.markNonceUsed(nonce, Duration.ofHours(48));
-                ticketRepository.save(ticket);
 
-                // Use offline timestamp for event if available
-                LocalDateTime eventTimestamp = LocalDateTime.now();
-                if (req.isOffline() && req.getOfflineTimestamp() != null && !req.getOfflineTimestamp().isBlank()) {
-                    try { eventTimestamp = LocalDateTime.parse(req.getOfflineTimestamp()); } catch (Exception ignored) {}
+                ticket.setUsageCount(ticket.getUsageCount() + 1);
+                if (ticket.getUsageCount() >= ticket.getMaxUsage()) {
+                    ticket.setStatus(TicketStatus.USED);
                 }
+
+                ticketRepository.save(ticket);
 
                 ValidationEvent event = ValidationEvent.builder()
                     .ticketId(ticketId)
                     .terminalId(req.getTerminalId())
                     .location(req.getLocation())
-                    .timestamp(eventTimestamp)
+                    .timestamp(LocalDateTime.now())
                     .offline(req.isOffline())
                     .result(ValidationResult.OK)
                     .build();
@@ -160,14 +110,10 @@ public class ValidationService {
 
                 antiReplayService.releaseValidationLock(ticketId);
 
-                int remaining = isPass ? -1 : (ticket.getMaxUsage() - ticket.getUsageCount());
                 return ValidationResponse.builder()
                     .result(ValidationResult.OK)
                     .ticketId(ticketId)
                     .message("Validation successful")
-                    .remainingUsages(remaining)
-                    .validUntil(validUntilStr)
-                    .productType(productType)
                     .build();
 
             } catch (Exception e) {
@@ -188,17 +134,13 @@ public class ValidationService {
     }
 
     private ValidationResponse saveEventAndReturn(Long ticketId, TicketScanRequest req,
-                                                   ValidationResult result, String message, String productType) {
-        LocalDateTime eventTimestamp = LocalDateTime.now();
-        if (req.isOffline() && req.getOfflineTimestamp() != null && !req.getOfflineTimestamp().isBlank()) {
-            try { eventTimestamp = LocalDateTime.parse(req.getOfflineTimestamp()); } catch (Exception ignored) {}
-        }
+                                                   ValidationResult result, String message) {
         if (ticketId != null) {
             ValidationEvent event = ValidationEvent.builder()
                 .ticketId(ticketId)
                 .terminalId(req.getTerminalId())
                 .location(req.getLocation())
-                .timestamp(eventTimestamp)
+                .timestamp(LocalDateTime.now())
                 .offline(req.isOffline())
                 .result(result)
                 .build();
@@ -208,7 +150,6 @@ public class ValidationService {
             .result(result)
             .ticketId(ticketId)
             .message(message)
-            .productType(productType != null ? productType : "")
             .build();
     }
 

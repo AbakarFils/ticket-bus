@@ -45,8 +45,4 @@ public class QrVerificationService {
             return false;
         }
     }
-
-    public String getPublicKeyBase64() {
-        return Base64.getEncoder().encodeToString(publicKey.getEncoded());
-    }
 }

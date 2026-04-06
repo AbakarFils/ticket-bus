@@ -4,11 +4,11 @@ import { ProductsComponent } from './products/products.component';
 import { ValidationEventsComponent } from './validation-events/validation-events.component';
 import { WalletsComponent } from './wallets/wallets.component';
 import { TicketsComponent } from './tickets/tickets.component';
+import { QrValidatorComponent } from './qr-validator/qr-validator.component';
 import { FraudAlertsComponent } from './fraud-alerts/fraud-alerts.component';
 import { PaymentsComponent } from './payments/payments.component';
 import { CustomersComponent } from './customers/customers.component';
 import { OperatorsComponent } from './operators/operators.component';
-import { QrValidatorComponent } from './qr-validator/qr-validator.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },

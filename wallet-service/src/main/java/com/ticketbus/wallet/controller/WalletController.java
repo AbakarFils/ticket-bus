@@ -73,16 +73,4 @@ public class WalletController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
-
-    /** Wallets with budget alert triggered (for back-office dashboard) */
-    @GetMapping("/alerts")
-    public ResponseEntity<List<WalletDto>> getWalletAlerts() {
-        return ResponseEntity.ok(walletService.getWalletsWithBudgetAlert());
-    }
-
-    /** Detailed budget status for a specific user */
-    @GetMapping("/{userId}/budget-status")
-    public ResponseEntity<Map<String, Object>> getBudgetStatus(@PathVariable Long userId) {
-        return ResponseEntity.ok(walletService.getBudgetStatus(userId));
-    }
 }

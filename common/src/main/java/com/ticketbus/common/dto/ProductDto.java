@@ -15,5 +15,4 @@ public class ProductDto {
     private BigDecimal price;
     private int maxUsage;
     private Integer durationDays;
-    private String description;
 }
