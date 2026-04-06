@@ -36,8 +36,12 @@ import { MatDividerModule } from '@angular/material/divider';
             <mat-icon matListItemIcon>confirmation_number</mat-icon>
             <span matListItemTitle>Tickets</span>
           </a>
-          <a mat-list-item routerLink="/events" routerLinkActive="active-link">
+          <a mat-list-item routerLink="/qr-scanner" routerLinkActive="active-link">
             <mat-icon matListItemIcon>qr_code_scanner</mat-icon>
+            <span matListItemTitle>Scanner QR</span>
+          </a>
+          <a mat-list-item routerLink="/events" routerLinkActive="active-link">
+            <mat-icon matListItemIcon>fact_check</mat-icon>
             <span matListItemTitle>Validations</span>
 >>>>>>> 6a79295c (phase 3)
           </a>

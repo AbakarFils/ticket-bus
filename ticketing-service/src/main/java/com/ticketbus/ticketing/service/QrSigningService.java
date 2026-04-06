@@ -62,7 +62,7 @@ public class QrSigningService {
     }
 
     /** JSON payload for the QR code (readable by validation-service) */
-    public String buildQrJson(Ticket ticket, String signature) {
+    public String buildQrJson(Ticket ticket, String signature, String productType) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             ObjectNode node = mapper.createObjectNode();
@@ -73,7 +73,7 @@ public class QrSigningService {
             node.put("validUntil", ticket.getValidUntil().toString());
             node.put("maxUsage", ticket.getMaxUsage());
             node.put("zone", ticket.getZone() != null ? ticket.getZone() : "");
-            node.put("productType", "");
+            node.put("productType", productType != null ? productType : "");
             node.put("signature", signature);
             return mapper.writeValueAsString(node);
         } catch (Exception e) {
