@@ -1,6 +1,10 @@
 package com.ticketbus.payment.controller;
 
+<<<<<<< HEAD
 import com.ticketbus.payment.domain.PaymentTransaction;
+=======
+import com.ticketbus.common.dto.PaymentTransactionDto;
+>>>>>>> 6a79295c (phase 3)
 import com.ticketbus.payment.dto.PaymentRequest;
 import com.ticketbus.payment.dto.PaymentResponse;
 import com.ticketbus.payment.service.PaymentService;
@@ -74,6 +78,25 @@ public class PaymentController {
             ));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<PaymentTransactionDto>> getTransactionsByUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(paymentService.getTransactionsByUser(userId));
+    }
+
+    @GetMapping("/recent")
+    public ResponseEntity<List<PaymentTransactionDto>> getRecentTransactions() {
+        return ResponseEntity.ok(paymentService.getRecentTransactions());
+    }
+
+    @PostMapping("/refund/{transactionRef}")
+    public ResponseEntity<?> refund(@PathVariable String transactionRef) {
+        try {
+            return ResponseEntity.ok(paymentService.refund(transactionRef));
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 

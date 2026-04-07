@@ -4,3 +4,7 @@ ARG JAR_FILE=target/*.jar
 COPY ${JAR_FILE} app.jar
 EXPOSE 8086
 ENTRYPOINT ["java", "-jar", "app.jar"]
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6a79295c (phase 3)

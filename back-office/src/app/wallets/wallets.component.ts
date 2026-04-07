@@ -5,6 +5,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatIconModule } from '@angular/material/icon';
 import { ApiService, Wallet } from '../core/api.service';
 
 @Component({
@@ -12,7 +14,8 @@ import { ApiService, Wallet } from '../core/api.service';
   standalone: true,
   imports: [
     CommonModule, ReactiveFormsModule,
-    MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule
+    MatCardModule, MatFormFieldModule, MatInputModule,
+    MatButtonModule, MatSnackBarModule, MatIconModule
   ],
   template: `
     <h2>Gestion des Wallets</h2>
@@ -30,11 +33,31 @@ import { ApiService, Wallet } from '../core/api.service';
       </mat-card-content>
     </mat-card>
 
-    <mat-card *ngIf="wallet" style="max-width:480px; margin-bottom:24px">
+    <mat-card *ngIf="wallet" style="max-width:600px; margin-bottom:24px">
       <mat-card-header><mat-card-title>Wallet #{{ wallet.id }}</mat-card-title></mat-card-header>
       <mat-card-content>
-        <p><strong>Utilisateur :</strong> {{ wallet.userId }}</p>
-        <p><strong>Solde :</strong> {{ wallet.balance | number }} {{ wallet.currency }}</p>
+        <div style="display:flex; gap:24px; flex-wrap:wrap; margin-bottom:16px">
+          <div>
+            <p style="margin:0;color:#666;font-size:0.85em">Utilisateur</p>
+            <p style="margin:0;font-size:1.2em;font-weight:500">{{ wallet.userId }}</p>
+          </div>
+          <div>
+            <p style="margin:0;color:#666;font-size:0.85em">Solde</p>
+            <p style="margin:0;font-size:1.2em;font-weight:500;color:#2e7d32">{{ wallet.balance | number }} {{ wallet.currency }}</p>
+          </div>
+          <div *ngIf="wallet.monthlyBudget">
+            <p style="margin:0;color:#666;font-size:0.85em">Budget mensuel</p>
+            <p style="margin:0;font-size:1.2em;font-weight:500">{{ wallet.monthlyBudget | number }} {{ wallet.currency }}</p>
+          </div>
+          <div *ngIf="wallet.monthlySpent != null">
+            <p style="margin:0;color:#666;font-size:0.85em">Dépensé ce mois</p>
+            <p style="margin:0;font-size:1.2em;font-weight:500"
+               [style.color]="wallet.budgetAlertTriggered ? 'red' : 'black'">
+              {{ wallet.monthlySpent | number }} {{ wallet.currency }}
+              <span *ngIf="wallet.budgetAlertTriggered" style="font-size:0.8em"> ⚠️ Seuil atteint</span>
+            </p>
+          </div>
+        </div>
 
         <h4>Recharger</h4>
         <form [formGroup]="topUpForm" (ngSubmit)="onTopUp()" style="display:flex;gap:12px;align-items:flex-end">
@@ -44,8 +67,19 @@ import { ApiService, Wallet } from '../core/api.service';
           </mat-form-field>
           <button mat-raised-button color="accent" type="submit" [disabled]="topUpForm.invalid">Recharger</button>
         </form>
-        <p *ngIf="topUpSuccess" style="color:green">{{ topUpSuccess }}</p>
-        <p *ngIf="topUpError" style="color:red">{{ topUpError }}</p>
+
+        <h4>Configurer budget mensuel</h4>
+        <form [formGroup]="budgetForm" (ngSubmit)="onSetBudget()" style="display:flex;gap:12px;align-items:flex-end">
+          <mat-form-field>
+            <mat-label>Budget ({{ wallet.currency }})</mat-label>
+            <input matInput formControlName="monthlyBudget" type="number" placeholder="Ex: 50000">
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Seuil alerte (%)</mat-label>
+            <input matInput formControlName="alertThresholdPercent" type="number" placeholder="Ex: 80">
+          </mat-form-field>
+          <button mat-raised-button color="primary" type="submit" [disabled]="budgetForm.invalid">Configurer</button>
+        </form>
       </mat-card-content>
     </mat-card>
 
@@ -55,18 +89,21 @@ import { ApiService, Wallet } from '../core/api.service';
 export class WalletsComponent {
   wallet: Wallet | null = null;
   searchError = '';
-  topUpSuccess = '';
-  topUpError = '';
 
   searchForm: FormGroup;
   topUpForm: FormGroup;
+  budgetForm: FormGroup;
 
-  constructor(private api: ApiService, private fb: FormBuilder) {
+  constructor(private api: ApiService, private fb: FormBuilder, private snack: MatSnackBar) {
     this.searchForm = this.fb.group({
       userId: [null, [Validators.required, Validators.min(1)]]
     });
     this.topUpForm = this.fb.group({
       amount: [null, [Validators.required, Validators.min(1)]]
+    });
+    this.budgetForm = this.fb.group({
+      monthlyBudget: [null, [Validators.required, Validators.min(0)]],
+      alertThresholdPercent: [80, [Validators.required, Validators.min(1), Validators.max(100)]]
     });
   }
 
@@ -82,16 +119,27 @@ export class WalletsComponent {
 
   onTopUp(): void {
     if (!this.wallet || this.topUpForm.invalid) return;
-    this.topUpSuccess = '';
-    this.topUpError = '';
     const amount = this.topUpForm.value['amount'] as number;
     this.api.topUpWallet(this.wallet.userId, amount).subscribe({
       next: (w) => {
         this.wallet = w;
-        this.topUpSuccess = `Rechargement de ${amount} ${w.currency} effectué. Nouveau solde : ${w.balance} ${w.currency}`;
+        this.snack.open(`Rechargement de ${amount} ${w.currency} effectué. Nouveau solde : ${w.balance} ${w.currency}`, 'OK', { duration: 3000 });
         this.topUpForm.reset();
       },
-      error: () => { this.topUpError = 'Erreur lors du rechargement.'; }
+      error: () => this.snack.open('Erreur lors du rechargement.', 'OK', { duration: 3000 })
+    });
+  }
+
+  onSetBudget(): void {
+    if (!this.wallet || this.budgetForm.invalid) return;
+    const budget = this.budgetForm.value['monthlyBudget'] as number;
+    const threshold = this.budgetForm.value['alertThresholdPercent'] as number;
+    this.api.setMonthlyBudget(this.wallet.userId, budget, threshold).subscribe({
+      next: (w) => {
+        this.wallet = w;
+        this.snack.open(`Budget mensuel configuré : ${budget} ${w.currency}`, 'OK', { duration: 3000 });
+      },
+      error: () => this.snack.open('Erreur de configuration du budget.', 'OK', { duration: 3000 })
     });
   }
 }

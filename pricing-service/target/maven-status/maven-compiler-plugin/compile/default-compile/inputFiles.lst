@@ -1,7 +1,0 @@
-/home/runner/work/ticket-bus/ticket-bus/pricing-service/src/main/java/com/ticketbus/pricing/DataInitializer.java
-/home/runner/work/ticket-bus/ticket-bus/pricing-service/src/main/java/com/ticketbus/pricing/PricingServiceApplication.java
-/home/runner/work/ticket-bus/ticket-bus/pricing-service/src/main/java/com/ticketbus/pricing/config/SecurityConfig.java
-/home/runner/work/ticket-bus/ticket-bus/pricing-service/src/main/java/com/ticketbus/pricing/controller/PricingController.java
-/home/runner/work/ticket-bus/ticket-bus/pricing-service/src/main/java/com/ticketbus/pricing/dto/BestFareRecommendation.java
-/home/runner/work/ticket-bus/ticket-bus/pricing-service/src/main/java/com/ticketbus/pricing/repository/ProductRepository.java
-/home/runner/work/ticket-bus/ticket-bus/pricing-service/src/main/java/com/ticketbus/pricing/service/PricingService.java

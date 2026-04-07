@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
     Optional<Ticket> findByNonce(String nonce);
     List<Ticket> findByUserId(Long userId);
+    List<Ticket> findTop100ByOrderByCreatedAtDesc();
 }

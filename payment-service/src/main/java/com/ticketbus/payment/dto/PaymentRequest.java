@@ -13,6 +13,11 @@ public class PaymentRequest {
     private BigDecimal amount;
     private String currency;
     private String reference;
+<<<<<<< HEAD
     private String description;
     private PaymentMethod method;
+=======
+    private String paymentMethod; // MOBILE_MONEY, CARD, CASH
+    private String type; // TOPUP, PURCHASE, REFUND
+>>>>>>> 6a79295c (phase 3)
 }

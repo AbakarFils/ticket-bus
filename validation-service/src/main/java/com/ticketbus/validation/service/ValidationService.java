@@ -1,11 +1,11 @@
 package com.ticketbus.validation.service;
 
-import com.ticketbus.validation.client.AuditFraudClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ticketbus.common.domain.*;
 import com.ticketbus.validation.dto.TicketScanRequest;
 import com.ticketbus.validation.dto.ValidationResponse;
+import com.ticketbus.validation.repository.FraudAlertRepository;
 import com.ticketbus.validation.repository.TicketRepository;
 import com.ticketbus.validation.repository.ValidationEventRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,8 @@ public class ValidationService {
     private final AntiReplayService antiReplayService;
     private final TicketRepository ticketRepository;
     private final ValidationEventRepository validationEventRepository;
-    private final AuditFraudClient auditFraudClient;
+    private final FraudAlertRepository fraudAlertRepository;
+    private final FraudAlertSseService fraudAlertSseService;
     private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
     @Value("${validation.collision-window-minutes:5}")
@@ -47,12 +48,18 @@ public class ValidationService {
             String validFrom = json.get("validFrom").asText();
             String sigPayload = ticketId + "|" + userId + "|" + nonce + "|" + validFrom + "|" + validUntilStr + "|" + maxUsage;
 
-            if (!qrVerificationService.verifySignature(sigPayload, req.getSignature())) {
-                return saveEventAndReturn(ticketId, req, ValidationResult.INVALID_SIGNATURE, "Invalid signature");
+            // Signature can be in the JSON payload or in the request field
+            String signature = req.getSignature();
+            if ((signature == null || signature.isBlank()) && json.has("signature")) {
+                signature = json.get("signature").asText();
             }
 
-            if (auditFraudClient.isTicketBlacklisted(ticketId)) {
-                return saveEventAndReturn(ticketId, req, ValidationResult.BLACKLISTED, "Ticket is blacklisted");
+            if (signature == null || signature.isBlank()) {
+                return saveEventAndReturn(ticketId, req, ValidationResult.INVALID_SIGNATURE, "Missing signature");
+            }
+
+            if (!qrVerificationService.verifySignature(sigPayload, signature)) {
+                return saveEventAndReturn(ticketId, req, ValidationResult.INVALID_SIGNATURE, "Invalid signature");
             }
 
             LocalDateTime validUntil = LocalDateTime.parse(validUntilStr);
@@ -157,8 +164,34 @@ public class ValidationService {
         if (collision) {
             log.warn("TEMPORAL COLLISION DETECTED for ticket {}: validated at different locations within {} minutes",
                 ticketId, collisionWindowMinutes);
-            auditFraudClient.reportFraudAlert(ticketId, null, null, "DOUBLE_SCAN",
-                "Ticket validated at different locations within " + collisionWindowMinutes + " minutes");
+            FraudAlert alert = FraudAlert.builder()
+                .ticketId(ticketId)
+                .alertType(FraudAlertType.TEMPORAL_COLLISION)
+                .description("Ticket validated at different locations within " + collisionWindowMinutes + " minutes. Current: " + currentLocation)
+                .location(currentLocation)
+                .build();
+            alert = fraudAlertRepository.save(alert);
+            // Broadcast to SSE subscribers in real-time
+            fraudAlertSseService.publish(alert);
         }
+    }
+
+    public List<FraudAlert> getRecentFraudAlerts() {
+        return fraudAlertRepository.findTop100ByOrderByCreatedAtDesc();
+    }
+
+    public List<FraudAlert> getUnresolvedFraudAlerts() {
+        return fraudAlertRepository.findByResolvedFalseOrderByCreatedAtDesc();
+    }
+
+    public FraudAlert resolveFraudAlert(Long id) {
+        FraudAlert alert = fraudAlertRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("FraudAlert not found: " + id));
+        alert.setResolved(true);
+        return fraudAlertRepository.save(alert);
+    }
+
+    public long countUnresolvedAlerts() {
+        return fraudAlertRepository.countByResolvedFalse();
     }
 }

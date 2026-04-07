@@ -31,9 +31,13 @@ spring:
           predicates:
             - Path=/api/auth/**, /api/customers/**
         - id: audit-fraud-service
-          uri: ${AUDIT_URL:http://localhost:8087}
+          uri: ${AUDIT_FRAUD_URL:http://localhost:8087}
           predicates:
-            - Path=/api/fraud/**, /api/audit/**
+            - Path=/api/fraud/**
+        - id: audit-service
+          uri: ${AUDIT_URL:http://localhost:8088}
+          predicates:
+            - Path=/api/audit/**
       globalcors:
         corsConfigurations:
           '[/**]':
@@ -44,4 +48,4 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,gateway
+        include: health,info,gateway,prometheus

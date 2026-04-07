@@ -36,6 +36,13 @@ public class Ticket {
 
     private int maxUsage;
 
+    private String zone;
+
+    private Long operatorId;
+
+    /** Secret for dynamic QR rotation (TOTP-like), never exposed in QR */
+    private String secret;
+
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private TicketStatus status = TicketStatus.ACTIVE;
