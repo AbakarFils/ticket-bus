@@ -193,3 +193,5 @@ En dev, une paire de clés est générée automatiquement et la clé publique es
 - **Crypto** : RSA-2048 / SHA256withRSA
 - **Front-office** : Angular 19 + Angular Material
 - **Infra** : Docker Compose, prêt Kubernetes
+
+export JAVA_HOME=/tmp/jdk-17.0.18+8/Contents/Home && /tmp/apache-maven-3.9.6/bin/mvn clean package -DskipTests 2>&1 | tail -60

@@ -1,4 +1,12 @@
 #!/bin/bash
+echo "🧪 build jar"
+export JAVA_HOME=/tmp/jdk-17.0.18+8/Contents/Home && /tmp/apache-maven-3.9.6/bin/mvn clean package -DskipTests 2>&1 | tail -60
+
+echo "🧪 image charge jar"
+docker compose up
+
+echo "🧪 image build jar"
+docker compose build
 
 echo "🧪 Test des Endpoints QR et Impression - TicketBus"
 echo "=================================================="
