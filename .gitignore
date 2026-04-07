@@ -64,3 +64,10 @@ logs/
 /api-gateway/target/
 /.idea/
 /common/target/
+api-gateway/target/api-gateway-1.0.0-SNAPSHOT.jar
+api-gateway/target/api-gateway-1.0.0-SNAPSHOT.jar
+api-gateway/target/api-gateway-1.0.0-SNAPSHOT.jar
+/api-gateway/target
+/api-gateway/target
+/audit-service/target
+/common/target
