@@ -1,8 +1,0 @@
-/Users/mahamatabakar/Documents/workspaces/yams/ticketBus/ticket-bus/payment-service/src/main/java/com/ticketbus/payment/PaymentServiceApplication.java
-/Users/mahamatabakar/Documents/workspaces/yams/ticketBus/ticket-bus/payment-service/src/main/java/com/ticketbus/payment/config/AppConfig.java
-/Users/mahamatabakar/Documents/workspaces/yams/ticketBus/ticket-bus/payment-service/src/main/java/com/ticketbus/payment/config/SecurityConfig.java
-/Users/mahamatabakar/Documents/workspaces/yams/ticketBus/ticket-bus/payment-service/src/main/java/com/ticketbus/payment/controller/PaymentController.java
-/Users/mahamatabakar/Documents/workspaces/yams/ticketBus/ticket-bus/payment-service/src/main/java/com/ticketbus/payment/dto/PaymentRequest.java
-/Users/mahamatabakar/Documents/workspaces/yams/ticketBus/ticket-bus/payment-service/src/main/java/com/ticketbus/payment/dto/PaymentResponse.java
-/Users/mahamatabakar/Documents/workspaces/yams/ticketBus/ticket-bus/payment-service/src/main/java/com/ticketbus/payment/repository/PaymentTransactionRepository.java
-/Users/mahamatabakar/Documents/workspaces/yams/ticketBus/ticket-bus/payment-service/src/main/java/com/ticketbus/payment/service/PaymentService.java
