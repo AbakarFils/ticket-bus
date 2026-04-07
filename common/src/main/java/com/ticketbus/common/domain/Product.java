@@ -33,6 +33,8 @@ public class Product {
 
     private String zoneCode;
 
+    private String description;
+
     @Builder.Default
     private boolean active = true;
 }

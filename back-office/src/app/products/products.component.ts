@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
+import { MatChipsModule } from '@angular/material/chips';
 import { ApiService, Product } from '../core/api.service';
 
 @Component({
@@ -15,7 +16,7 @@ import { ApiService, Product } from '../core/api.service';
   imports: [
     CommonModule, ReactiveFormsModule,
     MatCardModule, MatFormFieldModule, MatInputModule,
-    MatSelectModule, MatButtonModule, MatTableModule
+    MatSelectModule, MatButtonModule, MatTableModule, MatChipsModule
   ],
   template: `
     <h2>Produits tarifaires</h2>
@@ -33,6 +34,7 @@ import { ApiService, Product } from '../core/api.service';
             <mat-select formControlName="type">
               <mat-option value="UNIT">Unitaire</mat-option>
               <mat-option value="PACK">Pack</mat-option>
+              <mat-option value="CARNET">Carnet</mat-option>
               <mat-option value="PASS">Pass</mat-option>
             </mat-select>
           </mat-form-field>
@@ -48,6 +50,10 @@ import { ApiService, Product } from '../core/api.service';
             <mat-label>Durée (jours)</mat-label>
             <input matInput formControlName="durationDays" type="number" placeholder="Vide si non applicable">
           </mat-form-field>
+          <mat-form-field *ngIf="form.get('type')?.value === 'PASS' || form.get('type')?.value === 'CARNET'" style="min-width:250px">
+            <mat-label>Description</mat-label>
+            <input matInput formControlName="description" placeholder="Ex: Voyages illimités pendant 30 jours">
+          </mat-form-field>
           <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">Créer</button>
         </form>
         <p *ngIf="successMsg" style="color:green">{{ successMsg }}</p>
@@ -62,7 +68,12 @@ import { ApiService, Product } from '../core/api.service';
       </ng-container>
       <ng-container matColumnDef="type">
         <th mat-header-cell *matHeaderCellDef>Type</th>
-        <td mat-cell *matCellDef="let p">{{ p.type }}</td>
+        <td mat-cell *matCellDef="let p">
+          <span [style.background]="typeColor(p.type)"
+                style="color:white;padding:2px 10px;border-radius:12px;font-size:0.85em">
+            {{ p.type }}
+          </span>
+        </td>
       </ng-container>
       <ng-container matColumnDef="price">
         <th mat-header-cell *matHeaderCellDef>Prix</th>
@@ -70,11 +81,15 @@ import { ApiService, Product } from '../core/api.service';
       </ng-container>
       <ng-container matColumnDef="maxUsage">
         <th mat-header-cell *matHeaderCellDef>Usages max</th>
-        <td mat-cell *matCellDef="let p">{{ p.maxUsage }}</td>
+        <td mat-cell *matCellDef="let p">{{ p.maxUsage >= 999 ? '∞' : p.maxUsage }}</td>
       </ng-container>
       <ng-container matColumnDef="durationDays">
         <th mat-header-cell *matHeaderCellDef>Durée (j)</th>
         <td mat-cell *matCellDef="let p">{{ p.durationDays ?? '—' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="description">
+        <th mat-header-cell *matHeaderCellDef>Description</th>
+        <td mat-cell *matCellDef="let p">{{ p.description ?? '—' }}</td>
       </ng-container>
       <ng-container matColumnDef="active">
         <th mat-header-cell *matHeaderCellDef>Actif</th>
@@ -90,7 +105,7 @@ import { ApiService, Product } from '../core/api.service';
 })
 export class ProductsComponent implements OnInit {
   products: Product[] = [];
-  columns = ['name', 'type', 'price', 'maxUsage', 'durationDays', 'active'];
+  columns = ['name', 'type', 'price', 'maxUsage', 'durationDays', 'description', 'active'];
   successMsg = '';
   errorMsg = '';
 
@@ -102,7 +117,8 @@ export class ProductsComponent implements OnInit {
       type: ['UNIT', Validators.required],
       price: [null, [Validators.required, Validators.min(1)]],
       maxUsage: [1, [Validators.required, Validators.min(1)]],
-      durationDays: [null]
+      durationDays: [null],
+      description: ['']
     });
   }
 
@@ -115,6 +131,16 @@ export class ProductsComponent implements OnInit {
       next: (p) => this.products = p,
       error: () => {}
     });
+  }
+
+  typeColor(type: string): string {
+    switch (type) {
+      case 'UNIT': return '#9e9e9e';
+      case 'PACK': return '#1976d2';
+      case 'CARNET': return '#f57c00';
+      case 'PASS': return '#2e7d32';
+      default: return '#757575';
+    }
   }
 
   onSubmit(): void {

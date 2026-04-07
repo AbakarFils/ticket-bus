@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -84,6 +85,19 @@ public class WalletService {
         }
         wallet.setMonthlySpent(wallet.getMonthlySpent().add(amount));
 
+        // Check and persist budget alert
+        if (wallet.getMonthlyBudget() != null && wallet.getAlertThresholdPercent() != null
+                && !wallet.isBudgetAlertTriggered()) {
+            BigDecimal threshold = wallet.getMonthlyBudget()
+                .multiply(BigDecimal.valueOf(wallet.getAlertThresholdPercent()))
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+            if (wallet.getMonthlySpent().compareTo(threshold) >= 0) {
+                wallet.setBudgetAlertTriggered(true);
+                log.warn("Budget alert triggered for user {}: spent {} / budget {} (threshold {}%)",
+                    userId, wallet.getMonthlySpent(), wallet.getMonthlyBudget(), wallet.getAlertThresholdPercent());
+            }
+        }
+
         log.info("Debited {} from wallet for user {}", amount, userId);
         return walletRepository.save(wallet);
     }
@@ -114,10 +128,49 @@ public class WalletService {
 
     private void resetMonthlySpendingIfNeeded(Wallet wallet) {
         int currentMonth = LocalDate.now().getMonthValue();
-        if (wallet.getCurrentMonth() == null || wallet.getCurrentMonth() != currentMonth) {
+        int currentYear = LocalDate.now().getYear();
+        if (wallet.getCurrentMonth() == null || wallet.getCurrentYear() == null
+                || wallet.getCurrentMonth() != currentMonth || wallet.getCurrentYear() != currentYear) {
             wallet.setMonthlySpent(BigDecimal.ZERO);
             wallet.setCurrentMonth(currentMonth);
+            wallet.setCurrentYear(currentYear);
+            wallet.setBudgetAlertTriggered(false);
         }
+    }
+
+    public List<WalletDto> getWalletsWithBudgetAlert() {
+        return walletRepository.findAll().stream()
+            .map(w -> {
+                resetMonthlySpendingIfNeeded(w);
+                return toDto(w);
+            })
+            .filter(WalletDto::isBudgetAlertTriggered)
+            .collect(Collectors.toList());
+    }
+
+    public Map<String, Object> getBudgetStatus(Long userId) {
+        Wallet wallet = getOrCreateWallet(userId);
+        resetMonthlySpendingIfNeeded(wallet);
+        WalletDto dto = toDto(wallet);
+
+        Map<String, Object> status = new java.util.HashMap<>();
+        status.put("userId", wallet.getUserId());
+        status.put("monthlyBudget", wallet.getMonthlyBudget());
+        status.put("monthlySpent", wallet.getMonthlySpent());
+        status.put("alertTriggered", dto.isBudgetAlertTriggered());
+        status.put("alertThresholdPercent", wallet.getAlertThresholdPercent());
+
+        if (wallet.getMonthlyBudget() != null && wallet.getMonthlyBudget().compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal percentUsed = wallet.getMonthlySpent()
+                .multiply(BigDecimal.valueOf(100))
+                .divide(wallet.getMonthlyBudget(), 2, RoundingMode.HALF_UP);
+            status.put("percentUsed", percentUsed);
+            status.put("remainingBudget", wallet.getMonthlyBudget().subtract(wallet.getMonthlySpent()));
+        } else {
+            status.put("percentUsed", BigDecimal.ZERO);
+            status.put("remainingBudget", null);
+        }
+        return status;
     }
 
     private WalletDto toDto(Wallet wallet) {

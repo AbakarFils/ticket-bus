@@ -12,6 +12,7 @@ export interface Product {
   durationDays: number | null;
   operatorId: number | null;
   zoneCode: string | null;
+  description: string | null;
   active: boolean;
 }
 
@@ -47,6 +48,7 @@ export interface Ticket {
   userId: number;
   productId: number;
   productName: string;
+  productType: string;
   nonce: string;
   validFrom: string;
   validUntil: string;
@@ -150,8 +152,29 @@ export class ApiService {
     return this.http.put<Ticket>(`${this.base}/api/tickets/${id}/revoke`, {});
   }
 
-  purchaseTicket(userId: number, productId: number): Observable<Ticket> {
-    return this.http.post<Ticket>(`${this.base}/api/tickets/purchase`, { userId, productId });
+  purchaseTicket(userId: number, productId: number, paymentMethod: string = 'WALLET'): Observable<Ticket> {
+    return this.http.post<Ticket>(`${this.base}/api/tickets/purchase`, { userId, productId, paymentMethod });
+  }
+
+  getTicketStats(): Observable<TicketStats> {
+    return this.http.get<TicketStats>(`${this.base}/api/tickets/stats`);
+  }
+
+  validateQrCode(qrPayload: string): Observable<any> {
+    return this.http.post(`${this.base}/api/tickets/validate-qr`, { qrPayload });
+  }
+
+  useTicket(ticketId: number): Observable<any> {
+    return this.http.post(`${this.base}/api/tickets/${ticketId}/use`, {});
+  }
+
+  // --- Wallet Alerts ---
+  getWalletAlerts(): Observable<Wallet[]> {
+    return this.http.get<Wallet[]>(`${this.base}/api/wallets/alerts`);
+  }
+
+  getBudgetStatus(userId: number): Observable<any> {
+    return this.http.get(`${this.base}/api/wallets/${userId}/budget-status`);
   }
 
   // --- Fraud Alerts ---
@@ -329,3 +352,11 @@ export interface AuditLog {
   details: string;
   ipAddress: string;
 }
+
+export interface TicketStats {
+  totalActive: number;
+  passActive: number;
+  carnetActive: number;
+  carnetUsageRatePercent: number;
+}
+

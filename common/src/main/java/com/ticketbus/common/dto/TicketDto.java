@@ -13,6 +13,7 @@ public class TicketDto {
     private Long userId;
     private Long productId;
     private String productName;
+    private String productType;
     private String nonce;
     private LocalDateTime validFrom;
     private LocalDateTime validUntil;
