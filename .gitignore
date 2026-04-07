@@ -63,3 +63,4 @@ logs/
 /audit-service/target/
 /api-gateway/target/
 /.idea/
+/common/target/
